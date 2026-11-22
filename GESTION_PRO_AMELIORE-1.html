@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17324d">
+<link rel="manifest" href="manifest.webmanifest">
+<title>GESTION PRO</title>
+<style>
+:root{--navy:#17324d;--blue:#2878b8;--bg:#f3f6fa;--ink:#182433;--muted:#64748b;--line:#e2e8f0;--green:#16845b;--red:#bd4141}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+header{background:var(--navy);color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:5}
+.brand{font-size:20px;font-weight:800;letter-spacing:.5px}.brand small{display:block;font-size:11px;font-weight:500;color:#c7d7e5;letter-spacing:1.2px}
+header button{background:#ffffff18;color:#fff;border:1px solid #ffffff40;padding:9px 12px;border-radius:9px}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 66px)}
+nav{background:#fff;border-right:1px solid var(--line);padding:16px 12px}
+nav button{display:flex;gap:10px;width:100%;border:0;background:transparent;padding:12px;border-radius:9px;text-align:left;color:#405166;font-weight:600;margin:3px 0;cursor:pointer}
+nav button.active,nav button:hover{background:#eaf3fb;color:var(--navy)}
+main{padding:26px;max-width:1400px;width:100%;margin:auto}
+h1{font-size:25px;margin:0 0 5px}h2{font-size:18px;margin:0 0 14px}.sub{color:var(--muted);margin:0 0 22px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0 24px}
+.card,.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:0 2px 8px #152c4208}
+.metric{font-size:24px;font-weight:800;margin-top:6px}.muted{color:var(--muted);font-size:13px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0;flex-wrap:wrap}
+button,.btn{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;background:var(--blue);color:#fff;font-weight:650}
+button.secondary,.btn.secondary{background:#eaf0f6;color:#243b53}button.danger{background:#fff0f0;color:var(--red)}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit;color:var(--ink)}
+label{font-size:13px;font-weight:650;display:block;margin:0 0 5px}.field{margin-bottom:13px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{color:#536477;background:#f8fafc;font-weight:700}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.pill{display:inline-block;border-radius:30px;padding:4px 9px;background:#edf2f7;font-size:11px;font-weight:700}
+.pill.green{background:#e5f6ee;color:#14734f}.pill.orange{background:#fff3df;color:#99600b}.pill.red{background:#fff0f0;color:#a33131}
+.modal{position:fixed;inset:0;background:#0b1725a8;display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal.open{display:flex}.dialog{background:#fff;border-radius:16px;width:min(820px,100%);max-height:92vh;overflow:auto;padding:22px}
+.dialoghead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.dialoghead h2{margin:0}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{padding:7px 10px;font-size:12px}
+.line-row{display:grid;grid-template-columns:1.1fr 2fr .65fr 1fr 1fr auto;gap:7px;margin:7px 0;align-items:center}
+.total{text-align:right;font-weight:800;font-size:18px;margin:15px 0}
+footer{padding:20px;color:var(--muted);font-size:12px;text-align:center}
+.notice{background:#fff8e8;border:1px solid #f1d99d;padding:12px;border-radius:10px;color:#72520b;font-size:13px;margin:15px 0}
+.success{background:#e8f7ef;color:#146c45;border:1px solid #bce8d0;padding:11px 13px;border-radius:9px;margin:12px 0}
+@media(max-width:850px){.layout{grid-template-columns:1fr}nav{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line);padding:8px;position:sticky;top:65px;z-index:4}nav button{white-space:nowrap;width:auto;margin:0;padding:9px 11px;font-size:13px}main{padding:18px 13px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){header{padding:12px 14px}.brand{font-size:17px}.cards{gap:8px}.card{padding:12px}.metric{font-size:19px}.grid2{grid-template-columns:1fr}.line-row{grid-template-columns:1fr 1fr}.line-row .ln-kind,.line-row .ln-name{grid-column:span 2}.line-row button{grid-column:2}.dialog{padding:16px}}
+@media print{body{background:#fff}header,nav,.toolbar,.actions,.no-print,footer{display:none!important}.layout{display:block}main{padding:0;max-width:none}.panel,.card{box-shadow:none}#printDoc{display:block!important}}
+</style>
+</head>
+<body>
+<header><div class="brand">GESTION PRO<small>DEVIS · FACTURES · COMPTABILITÉ</small></div><button onclick="openSettings()">⚙ Paramètres</button></header>
+<div class="layout">
+<nav id="nav">
+<button class="active" data-page="dashboard">▦ Tableau de bord</button>
+<button data-page="clients">♙ Clients</button>
+<button data-page="catalog">▤ Articles & services</button>
+<button data-page="documents">▣ Devis & factures</button>
+<button data-page="accounting">◉ Comptabilité</button>
+<button data-page="reports">▥ Rapports</button>
+</nav>
+<main id="app"></main>
+</div>
+<footer>GESTION PRO · Données enregistrées localement sur cet appareil · Pensez à exporter régulièrement une sauvegarde.</footer>
+<div class="modal" id="modal"><div class="dialog"><div class="dialoghead"><h2 id="modalTitle">Nouveau</h2><button class="secondary" onclick="closeModal()">Fermer</button></div><div id="modalBody"></div></div></div>
+<script>
+const KEY='gestion_pro_v1';
+const blank={settings:{company:'Mon entreprise',address:'',phone:'',email:'',currency:'FCFA',tax:0},clients:[],items:[],docs:[],entries:[]};
+let db=load(),page='dashboard';
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return {...blank,...x,settings:{...blank.settings,...(x.settings||{})},clients:x.clients||[],items:x.items||[],docs:x.docs||[],entries:x.entries||[]}}catch(e){return JSON.parse(JSON.stringify(blank))}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function money(n){return (Number(n)||0).toLocaleString('fr-FR',{maximumFractionDigits:0})+' '+(db.settings.currency||'FCFA')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function dateNow(){return new Date().toISOString().slice(0,10)}
+function show(p){page=p;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render()}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.page)));
+function render(){const el=document.getElementById('app');({dashboard:dash,clients:clients,catalog:catalog,documents:documents,accounting:accounting,reports:reports}[page]||dash)(el)}
+function heading(title,desc,button=''){return `<h1>${title}</h1><p class="sub">${desc}</p>${button}`}
+function dash(el){
+ const income=db.entries.filter(x=>x.type==='income').reduce((a,x)=>a+(+x.amount||0),0),out=db.entries.filter(x=>x.type==='expense').reduce((a,x)=>a+(+x.amount||0),0);
+ const unpaid=db.docs.filter(x=>x.type==='invoice'&&x.status!=='Payée').reduce((a,x)=>a+Math.max(0,x.total-(+x.paid||0)),0);
+ const quotes=db.docs.filter(x=>x.type==='quote'&&x.status!=='Accepté').length;
+ el.innerHTML=heading('Tableau de bord','Vue générale de votre activité')+`
+ <div class="cards"><div class="card"><div class="muted">Recettes enregistrées</div><div class="metric">${money(income)}</div></div><div class="card"><div class="muted">Dépenses enregistrées</div><div class="metric">${money(out)}</div></div><div class="card"><div class="muted">Solde recettes - dépenses</div><div class="metric">${money(income-out)}</div></div><div class="card"><div class="muted">Factures restant à payer</div><div class="metric">${money(unpaid)}</div></div></div>
+ <div class="grid2"><section class="panel"><h2>Activité</h2><p>${db.clients.length} client(s)</p><p>${db.docs.filter(x=>x.type==='quote').length} devis · ${db.docs.filter(x=>x.type==='invoice').length} facture(s)</p><p>${db.items.length} article(s) ou service(s)</p><p>${quotes} devis non acceptés</p></section><section class="panel"><h2>Actions rapides</h2><div class="actions"><button onclick="docForm('quote')">+ Nouveau devis</button><button onclick="docForm('invoice')">+ Nouvelle facture</button><button class="secondary" onclick="clientForm()">+ Ajouter un client</button><button class="secondary" onclick="entryForm()">+ Saisir une opération</button></div></section></div>
+ <div class="notice">Vos données restent sur cet appareil. Exportez régulièrement une sauvegarde depuis Rapports.</div>`;
+}
+function clients(el){el.innerHTML=heading('Clients','Gérez vos clients et retrouvez leurs coordonnées.',`<div class="toolbar"><input placeholder="Rechercher un client..." style="max-width:300px" oninput="filterTable('clientTable',this.value)"><button onclick="clientForm()">+ Nouveau client</button></div>`)+table(['Nom','Téléphone','E-mail','Adresse','Actions'],db.clients.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.address)}</td><td><div class="actions"><button class="secondary" onclick="clientForm('${c.id}')">Modifier</button><button class="danger" onclick="del('clients','${c.id}')">Supprimer</button></div></td></tr>`),'clientTable')}
+function catalog(el){el.innerHTML=heading('Articles & services','Enregistrez les produits et prestations réutilisables.',`<div class="toolbar"><input placeholder="Rechercher..." style="max-width:300px" oninput="filterTable('catalogTable',this.value)"><button onclick="itemForm()">+ Nouvel article / service</button></div>`)+table(['Désignation','Référence','Prix unitaire','Actions'],db.items.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.ref)}</td><td>${money(x.price)}</td><td><div class="actions"><button class="secondary" onclick="itemForm('${x.id}')">Modifier</button><button class="danger" onclick="del('items','${x.id}')">Supprimer</button></div></td></tr>`),'catalogTable')}
+function table(headers,rows,idname=''){return `<div class="tablewrap"><table id="${idname}"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.join(''):`<tr><td colspan="${headers.length}" class="empty">Aucune donnée pour le moment.</td></tr>`}</tbody></table></div>`}
+function filterTable(id,v){document.querySelectorAll('#'+id+' tbody tr').forEach(r=>r.style.display=r.innerText.toLowerCase().includes(v.toLowerCase())?'':'none')}
+function clientForm(cid=''){let c=db.clients.find(x=>x.id===cid)||{};modal('Fiche client',`<form onsubmit="saveClient(event,'${cid}')"><div class="field"><label>Nom / Raison sociale *</label><input name="name" required value="${esc(c.name)}"></div><div class="grid2"><div class="field"><label>Téléphone</label><input name="phone" value="${esc(c.phone)}"></div><div class="field"><label>E-mail</label><input name="email" type="email" value="${esc(c.email)}"></div></div><div class="field"><label>Adresse</label><textarea name="address">${esc(c.address)}</textarea></div><button type="submit">Valider et fermer</button></form>`)}
+function saveClient(e,cid){e.preventDefault();let f=Object.fromEntries(new FormData(e.target));if(cid)Object.assign(db.clients.find(x=>x.id===cid),f);else db.clients.push({id:id(),...f});save();closeModal();render();toast('Client enregistré avec succès.')}
+function itemForm(iid=''){let x=db.items.find(x=>x.id===iid)||{};modal('Article ou service',`<form onsubmit="saveItem(event,'${iid}')"><div class="field"><label>Désignation *</label><input name="name" required value="${esc(x.name)}"></div><div class="grid2"><div class="field"><label>Référence</label><input name="ref" value="${esc(x.ref)}"></div><div class="field"><label>Prix unitaire *</label><input name="price" type="number" min="0" step="1" required value="${x.price??''}"></div></div><button type="submit">Valider et fermer</button></form>`)}
+function saveItem(e,iid){e.preventDefault();let f=Object.fromEntries(new FormData(e.target));f.price=+f.price;if(iid)Object.assign(db.items.find(x=>x.id===iid),f);else db.items.push({id:id(),...f});save();closeModal();render();toast('Article enregistré avec succès.')}
+function docsRows(){return db.docs.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(d=>{let cl=db.clients.find(c=>c.id===d.clientId);return `<tr><td>${d.type==='quote'?'Devis':'Facture'} ${esc(d.number)}</td><td>${esc(cl?.name||d.clientName||'Client supprimé')}</td><td>${esc(d.date)}</td><td>${money(d.total)}</td><td><span class="pill ${d.status==='Payée'||d.status==='Accepté'?'green':d.status==='Annulée'?'red':'orange'}">${esc(d.status)}</span></td><td><div class="actions"><button class="secondary" onclick="viewDoc('${d.id}')">Voir / PDF</button>${d.type==='quote'?`<button onclick="convertDoc('${d.id}')">Convertir</button>`:`<button class="secondary" onclick="paymentForm('${d.id}')">Paiement</button>`}<button class="danger" onclick="del('docs','${d.id}')">Supprimer</button></div></td></tr>`})}
+function documents(el){el.innerHTML=heading('Devis & factures','Créez des devis, transformez-les en factures et suivez les paiements.',`<div class="toolbar"><select id="docFilter" onchange="docFilter()" style="max-width:180px"><option value="all">Tous les documents</option><option value="quote">Devis</option><option value="invoice">Factures</option></select><div class="actions"><button class="secondary" onclick="docForm('quote')">+ Devis</button><button onclick="docForm('invoice')">+ Facture</button></div></div>`)+table(['Document','Client','Date','Montant','Statut','Actions'],docsRows(),'docsTable')}
+function docFilter(){let v=document.getElementById('docFilter').value;document.querySelectorAll('#docsTable tbody tr').forEach(r=>r.style.display=v==='all'||r.cells[0].innerText.startsWith(v==='quote'?'Devis':'Facture')?'':'none')}
+function docForm(type){
+ if(!db.clients.length){alert('Ajoutez d’abord un client.');show('clients');return}
+ let n=(type==='quote'?'DEV':'FAC')+'-'+new Date().getFullYear()+'-'+String(db.docs.filter(x=>x.type===type).length+1).padStart(4,'0');
+ modal(type==='quote'?'Créer un devis':'Créer une facture',`<form id="docForm" onsubmit="saveDoc(event,'${type}')"><div class="grid2"><div class="field"><label>Numéro</label><input name="number" value="${n}" required></div><div class="field"><label>Date</label><input name="date" type="date" value="${dateNow()}" required></div></div><div class="field"><label>Client *</label><select name="clientId" required>${db.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div class="field"><label>Objet / description</label><input name="subject" placeholder="Ex. Travaux, prestation, vente..."></div><h3>Lignes du document</h3><p class="muted">Ajoutez séparément le matériel, les services et la main-d’œuvre. Les montants sont calculés automatiquement.</p><div id="lines"></div><button type="button" class="secondary" onclick="addLine()">+ Ajouter matériel / service</button> <button type="button" class="secondary" onclick="addLine('labor')">+ Ajouter main-d’œuvre</button><div class="grid2" style="margin-top:14px"><div class="field"><label>Remise globale (montant)</label><input name="discount" type="number" min="0" value="0" oninput="calcDoc()"></div><div class="field"><label>TVA (%)</label><input name="tax" type="number" min="0" value="${db.settings.tax||0}" oninput="calcDoc()"></div></div><div class="panel" style="margin-top:12px"><div id="docBreakdown" class="muted">Matériel / services : 0 · Main-d’œuvre : 0</div><div class="total" id="docTotal">Total : 0 ${esc(db.settings.currency)}</div></div><div class="field"><label>Notes / conditions</label><textarea name="notes" placeholder="Conditions de paiement, délai, validité..."></textarea></div><button type="submit">Valider et fermer</button></form>`);
+ addLine();
+}
+function addLine(kind='item'){
+ let d=document.createElement('div');d.className='line-row';
+ d.innerHTML=`<select class="ln-kind" aria-label="Type"><option value="item" ${kind==='item'?'selected':''}>Matériel / service</option><option value="labor" ${kind==='labor'?'selected':''}>Main-d’œuvre</option></select><input class="ln-name" placeholder="Désignation" list="itemList"><datalist id="itemList">${db.items.map(x=>`<option value="${esc(x.name)}"></option>`).join('')}</datalist><input class="ln-qty" type="number" min="0" step=".01" value="1" title="Quantité / heures" placeholder="Qté"><input class="ln-price" type="number" min="0" step="1" placeholder="Prix unitaire"><input class="ln-sum" readonly placeholder="Montant"><button type="button" class="danger" aria-label="Supprimer la ligne" onclick="this.parentElement.remove();calcDoc()">×</button>`;
+ document.getElementById('lines').append(d);
+ d.querySelectorAll('input,select').forEach(i=>i.addEventListener('input',()=>{let it=db.items.find(x=>x.name===d.querySelector('.ln-name').value);if(it&&i.classList.contains('ln-name'))d.querySelector('.ln-price').value=it.price;calcDoc()}));
+}
+function getLines(){return [...document.querySelectorAll('.line-row')].map(r=>({kind:r.querySelector('.ln-kind').value,name:r.querySelector('.ln-name').value.trim(),qty:+r.querySelector('.ln-qty').value||0,price:+r.querySelector('.ln-price').value||0})).filter(x=>x.name&&x.qty>0)}
+function calcDoc(){
+ let lines=getLines(),sub=lines.reduce((a,x)=>a+x.qty*x.price,0),labor=lines.filter(x=>x.kind==='labor').reduce((a,x)=>a+x.qty*x.price,0),goods=sub-labor;
+ let discount=Math.max(0,+document.querySelector('[name=discount]')?.value||0),tax=Math.max(0,+document.querySelector('[name=tax]')?.value||0),base=Math.max(0,sub-discount),total=base*(1+tax/100);
+ document.querySelectorAll('.ln-sum').forEach(e=>{let r=e.closest('.line-row');e.value=((+r.querySelector('.ln-qty').value||0)*(+r.querySelector('.ln-price').value||0)).toLocaleString('fr-FR')});
+ let out=document.getElementById('docTotal');if(out)out.textContent='Total : '+money(total);
+ let breakdown=document.getElementById('docBreakdown');if(breakdown)breakdown.textContent='Matériel / services : '+money(goods)+' · Main-d’œuvre : '+money(labor)+' · Sous-total : '+money(sub);
+ return {lines,sub,labor,goods,discount,tax,total};
+}
+function saveDoc(e,type){
+ e.preventDefault();let f=Object.fromEntries(new FormData(e.target)),calc=calcDoc();
+ if(!calc.lines.length){alert('Ajoutez au moins une ligne avec une désignation et une quantité supérieure à zéro.');return}
+ if(calc.discount>calc.sub){if(!confirm('La remise dépasse le sous-total. Le total sera ramené à zéro avant TVA. Continuer ?'))return}
+ let c=db.clients.find(x=>x.id===f.clientId);
+ db.docs.push({id:id(),type,...f,clientName:c.name,...calc,paid:0,status:type==='quote'?'En attente':'Impayée'});
+ save();closeModal();render();toast((type==='quote'?'Devis':'Facture')+' enregistré(e) avec succès.');
+}
+function convertDoc(did){let d=db.docs.find(x=>x.id===did);if(!d||d.type!=='quote')return;if(!confirm('Créer une facture à partir de ce devis ?'))return;let copy={...d,id:id(),type:'invoice',number:'FAC-'+new Date().getFullYear()+'-'+String(db.docs.filter(x=>x.type==='invoice').length+1).padStart(4,'0'),date:dateNow(),paid:0,status:'Impayée',source:d.number};d.status='Accepté';db.docs.push(copy);save();render();toast('Facture créée à partir du devis.')}
+function paymentForm(did){let d=db.docs.find(x=>x.id===did),remaining=Math.max(0,d.total-(+d.paid||0));modal('Enregistrer un paiement',`<p>Montant restant : <b>${money(remaining)}</b></p><form onsubmit="savePayment(event,'${did}')"><div class="field"><label>Montant reçu *</label><input name="amount" type="number" min="1" max="${remaining}" required></div><div class="field"><label>Date</label><input name="date" type="date" value="${dateNow()}"></div><div class="field"><label>Mode de paiement</label><select name="method"><option>Espèces</option><option>Virement</option><option>Chèque</option><option>Mobile money</option><option>Autre</option></select></div><button type="submit">Valider et fermer</button></form>`)}
+function savePayment(e,did){e.preventDefault();let f=Object.fromEntries(new FormData(e.target)),d=db.docs.find(x=>x.id===did),amount=+f.amount;if(amount<=0||amount>d.total-(+d.paid||0)){alert('Le montant saisi est invalide.');return}d.paid=(+d.paid||0)+amount;d.status=d.paid>=d.total?'Payée':'Partiellement payée';db.entries.push({id:id(),type:'income',label:'Paiement facture '+d.number,amount,date:f.date,category:'Vente / prestation',method:f.method,docId:did});save();closeModal();render();toast('Paiement enregistré.')}
+function viewDoc(did){
+ let d=db.docs.find(x=>x.id===did),c=db.clients.find(x=>x.id===d.clientId)||{name:d.clientName,address:'',phone:'',email:''};
+ let lines=d.lines.map(l=>`<tr><td>${esc(l.kind==='labor'?'Main-d’œuvre':'Matériel / service')}</td><td>${esc(l.name)}</td><td>${l.qty}</td><td>${money(l.price)}</td><td>${money(l.qty*l.price)}</td></tr>`).join('');
+ let labor=d.labor??(d.lines||[]).filter(x=>x.kind==='labor').reduce((a,x)=>a+x.qty*x.price,0);
+ modal('Document '+esc(d.number),`<div id="printDoc"><div style="display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap"><div><h2>${esc(db.settings.company)}</h2><p>${esc(db.settings.address)}<br>${esc(db.settings.phone)}<br>${esc(db.settings.email)}</p></div><div style="text-align:right"><h2>${d.type==='quote'?'DEVIS':'FACTURE'}</h2><b>${esc(d.number)}</b><p>Date : ${esc(d.date)}</p></div></div><hr><h3>Client : ${esc(c.name)}</h3><p>${esc(c.address)} · ${esc(c.phone)} · ${esc(c.email)}</p><p>${esc(d.subject)}</p><table><thead><tr><th>Type</th><th>Désignation</th><th>Qté / h</th><th>Prix unitaire</th><th>Total</th></tr></thead><tbody>${lines}</tbody></table><div style="text-align:right;margin-top:20px"><p>Sous-total : ${money(d.sub)}</p><p>Dont main-d’œuvre : ${money(labor)}</p><p>Remise : ${money(d.discount)}</p><p>TVA (${d.tax}%) : ${money(Math.max(0,d.sub-d.discount)*d.tax/100)}</p><h2>Total : ${money(d.total)}</h2>${d.type==='invoice'?`<p>Déjà payé : ${money(d.paid||0)} · Reste : ${money(d.total-(d.paid||0))}</p>`:''}</div><p>Notes : ${esc(d.notes)}</p><p style="margin-top:45px">Signature / Cachet</p></div><div class="toolbar no-print"><button onclick="printDoc()">Imprimer / Enregistrer PDF</button><button class="secondary" onclick="closeModal()">Fermer</button></div><p class="muted no-print">Sur Android, choisissez « Enregistrer au format PDF » dans la fenêtre d’impression, si cette option est proposée.</p>`);
+}
+function printDoc(){
+ const node=document.getElementById('printDoc');
+ if(!node){alert('Document introuvable.');return}
+ const oldTitle=document.title;
+ document.body.classList.add('printing-document');
+ document.title='GESTION-PRO-'+(document.querySelector('#printDoc b')?.textContent||'document');
+ const cleanup=()=>{document.body.classList.remove('printing-document');document.title=oldTitle;window.removeEventListener('afterprint',cleanup)};
+ window.addEventListener('afterprint',cleanup);
+ setTimeout(()=>{window.print();setTimeout(cleanup,1500)},250);
+}
+function accounting(el){let rows=db.entries.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${esc(x.date)}</td><td>${x.type==='income'?'Recette':'Dépense'}</td><td>${esc(x.label)}</td><td>${esc(x.category)}</td><td>${money(x.amount)}</td><td>${esc(x.method)}</td><td><button class="danger" onclick="del('entries','${x.id}')">Supprimer</button></td></tr>`);el.innerHTML=heading('Comptabilité','Enregistrez toutes les recettes et dépenses.',`<div class="toolbar"><div class="actions"><button onclick="entryForm('income')">+ Recette</button><button class="secondary" onclick="entryForm('expense')">+ Dépense</button></div><button class="secondary" onclick="exportCSV('entries')">Exporter CSV</button></div>`)+table(['Date','Type','Libellé','Catégorie','Montant','Mode','Action'],rows)}
+function entryForm(type='expense'){modal(type==='income'?'Nouvelle recette':'Nouvelle dépense',`<form onsubmit="saveEntry(event)"><div class="grid2"><div class="field"><label>Type</label><select name="type"><option value="expense" ${type==='expense'?'selected':''}>Dépense</option><option value="income" ${type==='income'?'selected':''}>Recette</option></select></div><div class="field"><label>Date</label><input name="date" type="date" value="${dateNow()}" required></div></div><div class="field"><label>Libellé *</label><input name="label" required placeholder="Ex. Achat de matériel"></div><div class="grid2"><div class="field"><label>Montant *</label><input name="amount" type="number" min="1" required></div><div class="field"><label>Catégorie</label><select name="category"><option>Vente / prestation</option><option>Achat de marchandises</option><option>Transport</option><option>Loyer</option><option>Salaires</option><option>Électricité / eau</option><option>Matériel</option><option>Impôts et taxes</option><option>Autre</option></select></div></div><div class="field"><label>Mode de paiement</label><select name="method"><option>Espèces</option><option>Virement</option><option>Chèque</option><option>Mobile money</option><option>Autre</option></select></div><button type="submit">Valider et fermer</button></form>`)}
+function saveEntry(e){e.preventDefault();let f=Object.fromEntries(new FormData(e.target));f.amount=+f.amount;db.entries.push({id:id(),...f});save();closeModal();render();toast('Opération enregistrée.')}
+function reports(el){let inc=db.entries.filter(x=>x.type==='income').reduce((a,x)=>a+(+x.amount||0),0),exp=db.entries.filter(x=>x.type==='expense').reduce((a,x)=>a+(+x.amount||0),0),invoices=db.docs.filter(x=>x.type==='invoice').reduce((a,x)=>a+(+x.total||0),0),quotes=db.docs.filter(x=>x.type==='quote').reduce((a,x)=>a+(+x.total||0),0);el.innerHTML=heading('Rapports','Synthèse des données enregistrées dans GESTION PRO.')+`<div class="cards"><div class="card"><div class="muted">Total des recettes</div><div class="metric">${money(inc)}</div></div><div class="card"><div class="muted">Total des dépenses</div><div class="metric">${money(exp)}</div></div><div class="card"><div class="muted">Résultat de trésorerie</div><div class="metric">${money(inc-exp)}</div></div><div class="card"><div class="muted">Facturation émise</div><div class="metric">${money(invoices)}</div></div></div><div class="panel"><h2>Exporter et sauvegarder</h2><p class="muted">Téléchargez une copie de vos données ou exportez vos tableaux au format CSV.</p><div class="actions"><button onclick="backup()">Sauvegarder toutes les données (JSON)</button><button class="secondary" onclick="exportCSV('docs')">Exporter devis & factures (CSV)</button><button class="secondary" onclick="exportCSV('clients')">Exporter clients (CSV)</button><button class="secondary" onclick="exportCSV('entries')">Exporter comptabilité (CSV)</button><label class="btn secondary" style="display:inline-block">Restaurer une sauvegarde<input type="file" accept="application/json" onchange="restore(event)" hidden></label></div></div><div class="notice">Le résultat présenté correspond aux recettes et dépenses saisies dans la comptabilité. Il ne constitue pas à lui seul un bilan comptable certifié.</div>`}
+function openSettings(){modal('Paramètres de l’entreprise',`<form onsubmit="saveSettings(event)"><div class="field"><label>Nom de l’entreprise</label><input name="company" value="${esc(db.settings.company)}" required></div><div class="field"><label>Adresse</label><input name="address" value="${esc(db.settings.address)}"></div><div class="grid2"><div class="field"><label>Téléphone</label><input name="phone" value="${esc(db.settings.phone)}"></div><div class="field"><label>E-mail</label><input name="email" value="${esc(db.settings.email)}"></div></div><div class="grid2"><div class="field"><label>Devise</label><select name="currency"><option ${db.settings.currency==='FCFA'?'selected':''}>FCFA</option><option ${db.settings.currency==='EUR'?'selected':''}>EUR</option><option ${db.settings.currency==='USD'?'selected':''}>USD</option></select></div><div class="field"><label>TVA par défaut (%)</label><input name="tax" type="number" min="0" value="${db.settings.tax||0}"></div></div><button type="submit">Valider et fermer</button></form>`)}
+function saveSettings(e){e.preventDefault();db.settings=Object.fromEntries(new FormData(e.target));db.settings.tax=+db.settings.tax;save();closeModal();render();toast('Paramètres enregistrés.')}
+function modal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('open')}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function toast(message){let old=document.getElementById('toast');if(old)old.remove();let t=document.createElement('div');t.id='toast';t.className='success';t.textContent='✓ '+message;t.style.cssText='position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:30;max-width:90%;box-shadow:0 4px 20px #0002';document.body.append(t);setTimeout(()=>t.remove(),2800)}
+function del(collection,uid){if(!confirm('Confirmer la suppression ?'))return;db[collection]=db[collection].filter(x=>x.id!==uid);save();render();toast('Suppression effectuée.')}
+function backup(){download('gestion-pro-sauvegarde.json',JSON.stringify(db,null,2),'application/json')}
+function restore(e){let file=e.target.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{try{let data=JSON.parse(r.result);if(!data.clients||!data.docs||!data.entries)throw 0;if(confirm('Remplacer les données actuelles par cette sauvegarde ?')){db={...blank,...data,settings:{...blank.settings,...(data.settings||{})}};save();render();alert('Sauvegarde restaurée.')}}catch(err){alert('Fichier de sauvegarde invalide.')}};r.readAsText(file)}
+function download(name,data,type){let a=document.createElement('a'),url=URL.createObjectURL(new Blob([data],{type}));a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function exportCSV(kind){let rows=db[kind]||[];if(!rows.length){alert('Aucune donnée à exporter.');return}let keys=kind==='docs'?['number','type','date','clientName','subject','sub','labor','discount','tax','total','paid','status']:kind==='entries'?['date','type','label','category','amount','method']:['name','phone','email','address'];let csv=[keys.join(';'),...rows.map(r=>keys.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(';'))].join('\n');download('gestion-pro-'+kind+'.csv','\ufeff'+csv,'text/csv;charset=utf-8')}
+render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
