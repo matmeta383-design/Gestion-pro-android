@@ -1,0 +1,14 @@
+
+{
+  "id": "/Gestion-pro-android/",
+  "name": "GESTION PRO",
+  "short_name": "GESTION PRO",
+  "description": "Application de gestion des devis, travaux, matériaux et main-d'œuvre.",
+  "lang": "fr",
+  "start_url": "/Gestion-pro-android/",
+  "scope": "/Gestion-pro-android/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f6fa",
+  "theme_color": "#17324d"
+}
