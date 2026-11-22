@@ -158,6 +158,6 @@ function restore(e){let file=e.target.files[0];if(!file)return;let r=new FileRea
 function download(name,data,type){let a=document.createElement('a'),url=URL.createObjectURL(new Blob([data],{type}));a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 function exportCSV(kind){let rows=db[kind]||[];if(!rows.length){alert('Aucune donnée à exporter.');return}let keys=kind==='docs'?['number','type','date','clientName','subject','sub','labor','discount','tax','total','paid','status']:kind==='entries'?['date','type','label','category','amount','method']:['name','phone','email','address'];let csv=[keys.join(';'),...rows.map(r=>keys.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(';'))].join('\n');download('gestion-pro-'+kind+'.csv','\ufeff'+csv,'text/csv;charset=utf-8')}
 render();
-if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-</script>
-</body></html>
+if ('serviceWorker' in navigator &&
+location.protocol.startsWith('http'))
+navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
