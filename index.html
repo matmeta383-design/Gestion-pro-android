@@ -177,12 +177,95 @@ function saveDoc(e,type){
 function convertDoc(did){let d=db.docs.find(x=>x.id===did);if(!d||d.type!=='quote')return;if(!confirm('Créer une facture à partir de ce devis ?'))return;let copy={...d,id:id(),type:'invoice',number:'FAC-'+new Date().getFullYear()+'-'+String(db.docs.filter(x=>x.type==='invoice').length+1).padStart(4,'0'),date:dateNow(),paid:0,status:'Impayée',source:d.number};d.status='Accepté';db.docs.push(copy);save();render();toast('Facture créée à partir du devis.')}
 function paymentForm(did){let d=db.docs.find(x=>x.id===did),remaining=Math.max(0,d.total-(+d.paid||0));modal('Enregistrer un paiement',`<p>Montant restant : <b>${money(remaining)}</b></p><form onsubmit="savePayment(event,'${did}')"><div class="field"><label>Montant reçu *</label><input name="amount" type="number" min="1" max="${remaining}" required></div><div class="field"><label>Date</label><input name="date" type="date" value="${dateNow()}"></div><div class="field"><label>Mode de paiement</label><select name="method"><option>Espèces</option><option>Virement</option><option>Chèque</option><option>Mobile money</option><option>Autre</option></select></div><button type="submit">Valider et fermer</button></form>`)}
 function savePayment(e,did){e.preventDefault();let f=Object.fromEntries(new FormData(e.target)),d=db.docs.find(x=>x.id===did),amount=+f.amount;if(amount<=0||amount>d.total-(+d.paid||0)){alert('Le montant saisi est invalide.');return}d.paid=(+d.paid||0)+amount;d.status=d.paid>=d.total?'Payée':'Partiellement payée';db.entries.push({id:id(),type:'income',label:'Paiement facture '+d.number,amount,date:f.date,category:'Vente / prestation',method:f.method,docId:did});save();closeModal();render();toast('Paiement enregistré.')}
+
 function viewDoc(did){
- let d=db.docs.find(x=>x.id===did),c=db.clients.find(x=>x.id===d.clientId)||{name:d.clientName,address:'',phone:'',email:''};
- let lines=d.lines.map(l=>`<tr><td>${esc(l.kind==='labor'?'Main-d’œuvre':'Matériel / service')}</td><td>${esc(l.name)}</td><td>${l.qty}</td><td>${money(l.price)}</td><td>${money(l.qty*l.price)}</td></tr>`).join('');
+ let d=db.docs.find(x=>x.id===did);
+ let c=db.clients.find(x=>x.id===d.clientId)||{name:d.clientName,address:'',phone:'',email:''};
+
+ let lines=(d.lines||[]).map((l,i)=>`
+ <tr>
+ <td>${i+1}</td>
+ <td><b>${esc(l.name)}</b><br><small>${esc(l.kind==='labor'?'Main-d’œuvre':'Matériel / service')}</small></td>
+ <td>${l.qty}</td>
+ <td>${money(l.price)}</td>
+ <td><b>${money(l.qty*l.price)}</b></td>
+ </tr>`).join('');
+
  let labor=d.labor??(d.lines||[]).filter(x=>x.kind==='labor').reduce((a,x)=>a+x.qty*x.price,0);
- modal('Document '+esc(d.number),`<div id="printDoc"><div style="display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap"><div><h2>${esc(db.settings.company)}</h2><p>${esc(db.settings.address)}<br>${esc(db.settings.phone)}<br>${esc(db.settings.email)}</p></div><div style="text-align:right"><h2>${d.type==='quote'?'DEVIS':'FACTURE'}</h2><b>${esc(d.number)}</b><p>Date : ${esc(d.date)}</p></div></div><hr><h3>Client : ${esc(c.name)}</h3><p>${esc(c.address)} · ${esc(c.phone)} · ${esc(c.email)}</p><p>${esc(d.subject)}</p><table><thead><tr><th>Type</th><th>Désignation</th><th>Qté / h</th><th>Prix unitaire</th><th>Total</th></tr></thead><tbody>${lines}</tbody></table><div style="text-align:right;margin-top:20px"><p>Sous-total : ${money(d.sub)}</p><p>Dont main-d’œuvre : ${money(labor)}</p><p>Remise : ${money(d.discount)}</p><p>TVA (${d.tax}%) : ${money(Math.max(0,d.sub-d.discount)*d.tax/100)}</p><h2>Total : ${money(d.total)}</h2>${d.type==='invoice'?`<p>Déjà payé : ${money(d.paid||0)} · Reste : ${money(d.total-(d.paid||0))}</p>`:''}</div><p>Notes : ${esc(d.notes)}</p><p style="margin-top:45px">Signature / Cachet</p></div><div class="toolbar no-print"><button onclick="printDoc()">Imprimer / Enregistrer PDF</button><button class="secondary" onclick="closeModal()">Fermer</button></div><p class="muted no-print">Sur Android, choisissez « Enregistrer au format PDF » dans la fenêtre d’impression, si cette option est proposée.</p>`);
+ let taxAmount=Math.max(0,d.sub-d.discount)*d.tax/100;
+
+ modal('Document '+esc(d.number),`
+ <div id="printDoc" class="business-document">
+
+ <div class="doc-top">
+ <div>
+ <h2>${esc(db.settings.company)}</h2>
+ <p>${esc(db.settings.address)}<br>
+ ${esc(db.settings.phone)}<br>
+ ${esc(db.settings.email)}</p>
+ </div>
+ <div style="text-align:right">
+ <h1>${d.type==='quote'?'DEVIS':'FACTURE'}</h1>
+ <b>${esc(d.number)}</b>
+ <p>Date : ${esc(d.date)}</p>
+ </div>
+ </div>
+
+ <hr>
+
+ <div class="doc-client">
+ <b>CLIENT</b>
+ <h3>${esc(c.name)}</h3>
+ ${esc(c.address)}<br>
+ ${esc(c.phone)}<br>
+ ${esc(c.email)}
+ </div>
+
+ <h3>${esc(d.subject||'Détail des prestations')}</h3>
+
+ <table class="doc-table">
+ <thead>
+ <tr>
+ <th>N°</th>
+ <th>Désignation</th>
+ <th>Qté</th>
+ <th>Prix unitaire</th>
+ <th>Total</th>
+ </tr>
+ </thead>
+ <tbody>${lines}</tbody>
+ </table>
+
+ <div class="doc-totals">
+ <p>Matériel / services : <b>${money(d.sub-labor)}</b></p>
+ <p>Main-d’œuvre : <b>${money(labor)}</b></p>
+ <p>Sous-total : <b>${money(d.sub)}</b></p>
+ <p>Remise : <b>${money(d.discount)}</b></p>
+ <p>TVA (${d.tax} %) : <b>${money(taxAmount)}</b></p>
+ <h2>TOTAL À PAYER : ${money(d.total)}</h2>
+ </div>
+
+ ${d.type==='invoice'?`
+ <p>Déjà payé : ${money(d.paid||0)}</p>
+ <h3>Reste à payer : ${money(Math.max(0,d.total-(d.paid||0)))}</h3>
+ `:''}
+
+ <p>Notes : ${esc(d.notes||'')}</p>
+
+ <div class="doc-signatures">
+ <div>Signature du client</div>
+ <div>Signature et cachet<br>${esc(db.settings.company)}</div>
+ </div>
+
+ </div>
+
+ <div class="toolbar no-print">
+ <button onclick="printDoc()">Imprimer / Enregistrer PDF</button>
+ <button class="secondary" onclick="closeModal()">Fermer</button>
+ </div>
+ `);
 }
+
 function printDoc(){
  const node=document.getElementById('printDoc');
  if(!node){alert('Document introuvable.');return}
