@@ -411,7 +411,7 @@ stockButton.dataset.page = 'stock';
 stockButton.textContent = '📦 Gestion de stock';
 
 const catalogButton = document.querySelector('nav button[data-page="catalog"]');
-catalogButton.insertAdjacentElement('afterend', stockButton);
+catalogButton.insertAdjacentElement('afterend', stockButton);stockButton.addEventListener('click', () => show('stock'));
 
 const oldRender = render;
 
