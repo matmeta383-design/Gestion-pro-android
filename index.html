@@ -6,6 +6,113 @@
 <meta name="theme-color" content="#17324d">
 <link rel="manifest" href="manifest.webmanifest">
 <title>S.O.SONKO</title>
+
+/* DESIGN PROFESSIONNEL DES DEVIS ET FACTURES */
+.business-document {
+  background: #fff;
+  color: #182433;
+  padding: 24px;
+  border: 1px solid #dce3eb;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.doc-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.doc-top h2 {
+  color: #17324d;
+  font-size: 22px;
+  text-transform: uppercase;
+}
+
+.doc-top h1 {
+  color: #2878b8;
+  font-size: 23px;
+}
+
+.doc-client {
+  background: #f3f6fa;
+  border-left: 4px solid #2878b8;
+  padding: 14px;
+  margin: 18px 0;
+  line-height: 1.8;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 18px;
+}
+
+.doc-table th {
+  background: #17324d;
+  color: white;
+  padding: 12px 7px;
+  text-align: left;
+}
+
+.doc-table td {
+  border-bottom: 1px solid #dce3eb;
+  padding: 12px 7px;
+}
+
+.doc-totals {
+  margin-top: 20px;
+  margin-left: auto;
+  max-width: 340px;
+  text-align: right;
+  line-height: 1.8;
+}
+
+.doc-totals h2 {
+  background: #17324d;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+.doc-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 65px;
+  min-height: 90px;
+  font-weight: bold;
+}
+
+.doc-signatures div:last-child {
+  text-align: right;
+}
+
+@media(max-width:600px) {
+  .business-document {
+    padding: 12px;
+  }
+  .doc-top h2 {
+    font-size: 16px;
+  }
+  .doc-top h1 {
+    font-size: 18px;
+  }
+  .doc-table th,
+  .doc-table td {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+}
+
+@media print {
+  .business-document {
+    border: none;
+    padding: 0;
+  }
+}
 <style>
 :root{--navy:#17324d;--blue:#2878b8;--bg:#f3f6fa;--ink:#182433;--muted:#64748b;--line:#e2e8f0;--green:#16845b;--red:#bd4141}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
