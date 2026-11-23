@@ -400,6 +400,220 @@ render();
 if ('serviceWorker' in navigator &&
 location.protocol.startsWith('http'))
 navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+
+/* ===== MODULE GESTION DE STOCK S.O.SONKO ===== */
+
+db.stock = db.stock || [];
+db.stockMovements = db.stockMovements || [];
+
+const stockButton = document.createElement('button');
+stockButton.dataset.page = 'stock';
+stockButton.textContent = '📦 Gestion de stock';
+
+const catalogButton = document.querySelector('nav button[data-page="catalog"]');
+catalogButton.insertAdjacentElement('afterend', stockButton);
+
+const oldRender = render;
+
+render = function() {
+  if (page === 'stock') {
+    stockPage(document.getElementById('app'));
+  } else {
+    oldRender();
+  }
+};
+
+function stockPage(el) {
+  const low = db.stock.filter(x => x.qty <= x.alert).length;
+  const value = db.stock.reduce((a,x) => a + x.qty*x.cost, 0);
+
+  const rows = db.stock.map(x => `
+    <tr>
+      <td><b>${esc(x.name)}</b></td>
+      <td>${esc(x.unit)}</td>
+      <td>${x.qty}</td>
+      <td>${money(x.cost)}</td>
+      <td>${money(x.qty*x.cost)}</td>
+      <td>${x.qty <= x.alert ? '⚠️ Stock bas' : 'Disponible'}</td>
+      <td>
+        <button onclick="stockMove('${x.id}','in')">Entrée</button>
+        <button onclick="stockMove('${x.id}','out')">Sortie</button>
+      </td>
+    </tr>
+  `);
+
+  el.innerHTML = `
+    ${heading('Gestion de stock','Matériaux de METALECT NDANANE')}
+    <div class="cards">
+      <div class="card">
+        <div class="muted">Matériaux</div>
+        <div class="metric">${db.stock.length}</div>
+      </div>
+      <div class="card">
+        <div class="muted">Alertes</div>
+        <div class="metric">${low}</div>
+      </div>
+      <div class="card">
+        <div class="muted">Valeur du stock</div>
+        <div class="metric">${money(value)}</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button onclick="stockForm()">+ Ajouter un matériau</button>
+    </div>
+
+    ${table(
+      ['Matériau','Unité','Quantité','Coût unitaire','Valeur','État','Opérations'],
+      rows
+    )}
+
+    <div class="panel" style="margin-top:18px">
+      <h2>Derniers mouvements</h2>
+      ${table(
+        ['Date','Matériau','Opération','Quantité','Chantier'],
+        db.stockMovements.slice().reverse().map(m => {
+          const x = db.stock.find(z => z.id === m.stockId);
+          return `<tr>
+            <td>${esc(m.date)}</td>
+            <td>${esc(x?.name || 'Matériau')}</td>
+            <td>${m.type === 'in' ? 'Entrée' : 'Sortie'}</td>
+            <td>${m.qty}</td>
+            <td>${esc(m.note)}</td>
+          </tr>`;
+        })
+      )}
+    </div>
+  `;
+}
+
+function stockForm() {
+  modal('Ajouter un matériau', `
+    <form onsubmit="saveStockItem(event)">
+      <div class="field">
+        <label>Désignation *</label>
+        <input name="name" required placeholder="Ex. Câble 2,5 mm²">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Unité</label>
+          <select name="unit">
+            <option>pièce</option>
+            <option>mètre</option>
+            <option>rouleau</option>
+            <option>boîte</option>
+            <option>kg</option>
+            <option>sac</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Quantité initiale</label>
+          <input name="qty" type="number" min="0" step=".01" value="0">
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Coût unitaire FCFA</label>
+          <input name="cost" type="number" min="0" value="0">
+        </div>
+        <div class="field">
+          <label>Seuil d'alerte</label>
+          <input name="alert" type="number" min="0" value="2">
+        </div>
+      </div>
+      <button type="submit">Valider et fermer</button>
+    </form>
+  `);
+}
+
+function saveStockItem(e) {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const x = {
+    id: id(),
+    name: f.name,
+    unit: f.unit,
+    qty: Number(f.qty) || 0,
+    cost: Number(f.cost) || 0,
+    alert: Number(f.alert) || 0
+  };
+
+  db.stock.push(x);
+
+  if (x.qty > 0) {
+    db.stockMovements.push({
+      stockId: x.id,
+      type: 'in',
+      qty: x.qty,
+      date: dateNow(),
+      note: 'Stock initial'
+    });
+  }
+
+  save();
+  closeModal();
+  render();
+  toast('Matériau ajouté au stock.');
+}
+
+function stockMove(sid, type) {
+  const x = db.stock.find(z => z.id === sid);
+  if (!x) return;
+
+  modal(type === 'in' ? 'Entrée de stock' : 'Sortie de stock', `
+    <p><b>${esc(x.name)}</b></p>
+    <p>Stock disponible : ${x.qty} ${esc(x.unit)}</p>
+    <form onsubmit="saveStockMove(event,'${sid}','${type}')">
+      <div class="field">
+        <label>Quantité *</label>
+        <input name="qty" type="number" min=".01" step=".01"
+          ${type === 'out' ? `max="${x.qty}"` : ''} required>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input name="date" type="date" value="${dateNow()}" required>
+      </div>
+      <div class="field">
+        <label>Chantier / remarque</label>
+        <input name="note" placeholder="Nom du chantier ou fournisseur">
+      </div>
+      <button type="submit">Valider et fermer</button>
+    </form>
+  `);
+}
+
+function saveStockMove(e, sid, type) {
+  e.preventDefault();
+
+  const f = Object.fromEntries(new FormData(e.target));
+  const x = db.stock.find(z => z.id === sid);
+  const qty = Number(f.qty);
+
+  if (!x || qty <= 0) return;
+
+  if (type === 'out' && qty > x.qty) {
+    alert('Stock insuffisant !');
+    return;
+  }
+
+  x.qty += type === 'in' ? qty : -qty;
+
+  db.stockMovements.push({
+    stockId: sid,
+    type: type,
+    qty: qty,
+    date: f.date,
+    note: f.note
+  });
+
+  save();
+  closeModal();
+  render();
+  toast('Mouvement de stock enregistré.');
+}
+
+/* ===== FIN DU MODULE DE STOCK ===== */
+
 </script>
 </body>
 </html>
